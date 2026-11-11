@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import type { NguCanh } from '../lib/phien';
 import { xemNgayTotXau } from '../lib/canChi';
+import { tietKhiCuaNgay, tietKhiKeTiep, tietKhiTrongNam } from '../lib/tietKhi';
 import { Card, Field, GhiChu, Pill, inputStyle } from './dp-ui';
 
 const pad = (n: number) => String(n).padStart(2, '0');
@@ -22,6 +23,9 @@ export default function LichCanChiView({ nguCanh: _nguCanh }: { nguCanh?: NguCan
   const date = new Date(`${ngay}T00:00:00`);
   const hopLe = !Number.isNaN(date.getTime());
   const kq = useMemo(() => (hopLe ? xemNgayTotXau(date) : null), [ngay, hopLe]);
+  const tietKhi = useMemo(() => (hopLe ? tietKhiCuaNgay(date) : null), [ngay, hopLe]);
+  const chuKyTiet = useMemo(() => (hopLe ? tietKhiKeTiep(date) : null), [ngay, hopLe]);
+  const dsTietKhi = useMemo(() => (hopLe ? tietKhiTrongNam(date.getFullYear()) : []), [ngay, hopLe]);
 
   const o = useMemo(() => {
     const dau = new Date(thangXem.nam, thangXem.thang, 1);
@@ -50,8 +54,8 @@ export default function LichCanChiView({ nguCanh: _nguCanh }: { nguCanh?: NguCan
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
       <p style={{ margin: 0, color: 'var(--muted)', fontSize: 13.5, lineHeight: 1.7 }}>
-        Lịch Can Chi: chọn một ngày để xem Can Chi ngày — tháng — năm, 12 Trực, giờ Hoàng Đạo và
-        việc nên kiêng. Bảng bên dưới là lịch cả tháng, ngày Hoàng Đạo tô xanh.
+        Lịch Can Chi: chọn một ngày để xem Can Chi ngày — tháng — năm, 12 Trực, 24 tiết khí, giờ
+        Hoàng Đạo và việc nên kiêng. Bảng bên dưới là lịch cả tháng, ngày Hoàng Đạo tô xanh.
       </p>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 12 }}>
@@ -113,6 +117,7 @@ export default function LichCanChiView({ nguCanh: _nguCanh }: { nguCanh?: NguCan
                 {kq.hoangDao ? 'Ngày Hoàng Đạo' : 'Ngày Hắc Đạo'}
               </Pill>
               <Pill tone="muted">{kq.danhGia}</Pill>
+              {tietKhi && <Pill tone="gold">Tiết {tietKhi.ten}</Pill>}
             </div>
           </Card>
 
@@ -159,6 +164,69 @@ export default function LichCanChiView({ nguCanh: _nguCanh }: { nguCanh?: NguCan
             </div>
           </div>
         </>
+      )}
+
+      {hopLe && tietKhi && chuKyTiet && (
+        <div>
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'baseline',
+              justifyContent: 'space-between',
+              gap: 10,
+              flexWrap: 'wrap',
+              marginBottom: 8,
+            }}
+          >
+            <h4 style={{ margin: 0, fontSize: 14 }}>Tiết khí năm {date.getFullYear()}</h4>
+            <span style={{ fontSize: 12, color: 'var(--muted-2)' }}>
+              Đang: <strong style={{ color: 'var(--gold-2)' }}>{tietKhi.ten}</strong>
+              {chuKyTiet.conLai > 0
+                ? ` · còn ${chuKyTiet.conLai} ngày tới ${chuKyTiet.keTiep.ten}`
+                : ''}
+            </span>
+          </div>
+
+          <div style={{ display: 'flex', gap: 6, overflowX: 'auto', paddingBottom: 6 }}>
+            {dsTietKhi.map((t) => {
+              const chon = t.ngay === tietKhi.ngay;
+              return (
+                <button
+                  key={t.ngay}
+                  type="button"
+                  title={`${t.ten} · ${t.moTa}`}
+                  onClick={() => chonNgay(new Date(`${t.ngay}T00:00:00`))}
+                  style={{
+                    flex: '0 0 auto',
+                    minWidth: 88,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: 2,
+                    padding: '8px 10px',
+                    borderRadius: 10,
+                    cursor: 'pointer',
+                    fontFamily: 'inherit',
+                    border: `1px solid ${chon ? 'var(--line-strong)' : 'var(--line)'}`,
+                    background: chon ? 'var(--gold-mo)' : 'var(--glass-1)',
+                  }}
+                >
+                  <span style={{ fontSize: 12, color: chon ? 'var(--gold-2)' : 'var(--cream)' }}>
+                    {t.ten}
+                  </span>
+                  <span style={{ fontSize: 10.5, color: 'var(--muted-2)' }}>
+                    {t.ngayTrongThang}/{t.thang} · {t.loai === 'tiet' ? 'tiết' : 'khí'}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+
+          <p style={{ margin: '8px 0 0', color: 'var(--muted)', fontSize: 12.5, lineHeight: 1.65 }}>
+            <strong style={{ color: 'var(--text)' }}>{tietKhi.ten}</strong> — {tietKhi.moTa} Bắt đầu{' '}
+            {tietKhi.gio} ngày {tietKhi.ngayTrongThang}/{tietKhi.thang}.
+          </p>
+        </div>
       )}
 
       <div>

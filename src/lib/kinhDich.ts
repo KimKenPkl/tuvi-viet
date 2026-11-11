@@ -129,6 +129,7 @@ const THEO_HOA: Record<string, Que> = Object.fromEntries(
 
 export function queTheoHao(hao: readonly number[]): Que | null {
   if (hao.length !== 6) return null;
+  if (hao.some((h) => h !== 6 && h !== 7 && h !== 8 && h !== 9)) return null;
   const key = hao.map((h) => (h === 7 || h === 9 ? '1' : '0')).join('');
   return THEO_HOA[key] ?? null;
 }
@@ -148,23 +149,44 @@ export interface KetQuaGieo {
   viTriDong: number[];
 }
 
-export function gieoQue(rng: () => number = Math.random): KetQuaGieo {
-  const hao: HaoGieo[] = [];
-  for (let i = 0; i < 6; i += 1) {
-    let tong = 0;
-    for (let j = 0; j < 3; j += 1) tong += rng() < 0.5 ? 2 : 3;
-    hao.push({ giaTri: tong, duong: tong === 7 || tong === 9, dong: tong === 6 || tong === 9 });
-  }
-  const chu = queTheoHao(hao.map((h) => h.giaTri));
+/**
+ * Dựng lại kết quả gieo từ 6 giá trị hào (6/7/8/9).
+ *
+ * Dùng khi mở lại một lần gieo đã lưu: chỉ cần giữ 6 con số là đủ dựng lại
+ * quẻ chủ, quẻ biến và vị trí hào động, không phải lưu cả object.
+ */
+export function dungQueTuHao(giaTri: readonly number[]): KetQuaGieo {
+  if (giaTri.length !== 6) throw new Error('Cần đúng 6 hào để dựng quẻ');
+  if (giaTri.some((g) => ![6, 7, 8, 9].includes(g))) throw new Error('Giá trị hào phải là 6, 7, 8 hoặc 9');
+
+  const hao: HaoGieo[] = giaTri.map((g) => ({
+    giaTri: g,
+    duong: g === 7 || g === 9,
+    dong: g === 6 || g === 9,
+  }));
+
+  const chu = queTheoHao(giaTri);
+  if (!chu) throw new Error('Không dựng được quẻ từ 6 hào');
+
   const bienHao = hao.map((h) => (h.dong ? (h.duong ? 8 : 7) : h.giaTri));
   const bien = hao.some((h) => h.dong) ? queTheoHao(bienHao) : null;
-  if (!chu) throw new Error('Không dựng được quẻ từ 6 hào');
+
   return {
     hao,
     chu,
     bien,
     viTriDong: hao.map((h, i) => (h.dong ? i + 1 : 0)).filter(Boolean),
   };
+}
+
+export function gieoQue(rng: () => number = Math.random): KetQuaGieo {
+  const giaTri: number[] = [];
+  for (let i = 0; i < 6; i += 1) {
+    let tong = 0;
+    for (let j = 0; j < 3; j += 1) tong += rng() < 0.5 ? 2 : 3;
+    giaTri.push(tong);
+  }
+  return dungQueTuHao(giaTri);
 }
 
 export const TEN_HAO = ['Sơ', 'Nhị', 'Tam', 'Tứ', 'Ngũ', 'Thượng'];

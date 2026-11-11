@@ -167,12 +167,13 @@ const CONG_CU: CongCu[] = [
     ten: 'Kinh Dịch',
     icon: '☰',
     nhom: 'Quẻ',
-    moTa: 'Gieo quẻ bằng ba đồng xu, xem quẻ chủ, động hào và quẻ biến.',
+    moTa:
+      'Gieo quẻ bằng ba đồng xu, xem quẻ chủ, động hào và quẻ biến; tra cứu 64 quẻ và lưu lịch sử gieo.',
     tieuDe: 'Gieo quẻ Kinh Dịch — 64 quẻ, động hào và quẻ biến',
     moTaDai:
-      'Gieo sáu lần ba đồng xu để lập quẻ, xem quẻ chủ, động hào và quẻ biến; kèm cách đọc quái từ, hào từ và ý nghĩa thể – dụng.',
+      'Gieo sáu lần ba đồng xu để lập quẻ, xem quẻ chủ, động hào và quẻ biến; kèm cách đọc quái từ, hào từ và ý nghĩa thể – dụng. Có sẵn bảng tra 64 quẻ và lịch sử gieo lưu trên máy.',
     meta:
-      'Gieo quẻ Kinh Dịch online bằng ba đồng xu: lập quẻ 64 quái, xác định động hào, quẻ biến và hướng dẫn đọc quẻ theo Chu Dịch.',
+      'Gieo quẻ Kinh Dịch online bằng ba đồng xu: lập quẻ 64 quái, xác định động hào, quẻ biến và tra cứu ý nghĩa 64 quẻ theo Chu Dịch.',
     View: KinhDichView,
     bai: [
       {
@@ -245,12 +246,12 @@ const CONG_CU: CongCu[] = [
     ten: 'Lịch Can Chi',
     icon: '▦',
     nhom: 'Lịch',
-    moTa: 'Can Chi ngày – tháng – năm, 12 Trực, giờ Hoàng Đạo và lịch cả tháng.',
-    tieuDe: 'Lịch Can Chi — Can Chi ngày, 12 Trực và giờ Hoàng Đạo',
+    moTa: 'Can Chi ngày – tháng – năm, 12 Trực, 24 tiết khí, giờ Hoàng Đạo và lịch cả tháng.',
+    tieuDe: 'Lịch Can Chi — Can Chi ngày, 12 Trực, 24 tiết khí và giờ Hoàng Đạo',
     moTaDai:
-      'Chọn một ngày để xem Can Chi của ngày, tháng, năm, 12 Trực, giờ Hoàng Đạo, việc nên làm và nên tránh; kèm lịch cả tháng có đánh dấu ngày Hoàng Đạo.',
+      'Chọn một ngày để xem Can Chi của ngày, tháng, năm, 12 Trực, tiết khí đang bao trùm, giờ Hoàng Đạo, việc nên làm và nên tránh; kèm lịch cả tháng có đánh dấu ngày Hoàng Đạo và dải 24 tiết khí trong năm.',
     meta:
-      'Lịch Can Chi hôm nay: tra Can Chi ngày tháng năm, 12 Trực, giờ Hoàng Đạo, việc nên kiêng, lịch âm dương cả tháng theo múi giờ Việt Nam.',
+      'Lịch Can Chi hôm nay: tra Can Chi ngày tháng năm, 12 Trực, 24 tiết khí, giờ Hoàng Đạo, việc nên kiêng, lịch âm dương cả tháng theo múi giờ Việt Nam.',
     View: LichCanChiView,
     bai: [
       {
