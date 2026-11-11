@@ -34,7 +34,22 @@ Không máy chủ, không tài khoản, không gửi ngày sinh đi đâu.
 | **Xuất ảnh** | Tải lá số thành PNG 2× (nạp thư viện động, không làm nặng bundle) |
 | **Xuất PDF** | Ghép lá số (hoặc phần luận giải đang mở) và ghi chú thành tệp A4 nhiều trang, nạp `jspdf` động |
 | **Khác** | Chia sẻ lá số qua URL, in bằng `Ctrl+P` |
-| **Riêng tư** | 100% client-side. Không analytics, không backend, không API key |
+| **Hỏi AI (tuỳ chọn)** | Hỏi một câu / luận vận hạn / luận toàn lá số. BYOK: tự dán API key Gemini hoặc OpenRouter, key chỉ nằm trên máy |
+| **Riêng tư** | 100% client-side. Không analytics, không backend. Không có key nào nhúng trong bundle |
+
+---
+
+## Hỏi AI trên lá số (tuỳ chọn, BYOK)
+
+Phần luận giải rule-based vẫn chạy offline như cũ. Thêm vào đó là khối **Hỏi AI**: đặt một câu hỏi cụ thể, model đọc đúng dữ liệu lá số đang mở (do `iztro` an sẵn) rồi trả lời theo cấu trúc *Trả lời thẳng → Vì sao → Chuyện sẽ đi thế nào → Nên làm*, kèm mức độ chắc.
+
+- **Nhà cung cấp**: Google Gemini hoặc OpenRouter (cả hai cho phép gọi CORS từ web tĩnh).
+- **BYOK**: key do bạn dán vào, lưu trong `localStorage`, gửi thẳng tới nhà cung cấp. Không có proxy, không có key trong bundle.
+- **Kiểm tra trước khi gửi**: chặn câu hỏi rỗng, cảnh báo lệch năm xem, cảnh báo khi hỏi lá số người khác, gắn cờ an toàn cho sức khoẻ / pháp lý / đầu tư.
+- **Đo chất lượng thô**: số từ, tên sao được nhắc, từ tuyệt đối, phiên bản prompt, thời gian và chi phí ước tính — lưu kèm bài để đối chiếu.
+- **Dữ liệu**: bài đọc lưu tối đa 10 bản/lá số, 40 bản/toàn bộ, xoá được từng bài.
+
+Chi phí do tài khoản của bạn trả cho nhà cung cấp (Gemini Flash free tier là 0đ; bản trả phí khoảng vài phần nghìn USD cho một bài 1.500 từ).
 
 ---
 

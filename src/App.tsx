@@ -10,6 +10,7 @@ import CareerOrientation from './components/CareerOrientation';
 import VanHanPanel from './components/VanHanPanel';
 import XemNgayPanel from './components/XemNgayPanel';
 import XemTuoiPanel from './components/XemTuoiPanel';
+import AiPanel from './components/AiPanel';
 import { StarField, Divider } from './components/Ornaments';
 import LinhVat from './components/LinhVat';
 import { LienKet, chuyen, useMeta } from './lib/router';
@@ -367,6 +368,22 @@ export default function App() {
               >
                 Luận giải
               </button>
+              <button
+                className="btn-ai"
+                title="Hỏi AI về lá số này (cần API key của bạn)"
+                onClick={() => {
+                  setCheDo('luan-giai');
+                  requestAnimationFrame(() =>
+                    requestAnimationFrame(() =>
+                      document
+                        .getElementById('ai-panel')
+                        ?.scrollIntoView({ behavior: 'smooth', block: 'start' }),
+                    ),
+                  );
+                }}
+              >
+                Hỏi AI
+              </button>
             </>
           )}
           {laSo && (
@@ -637,6 +654,7 @@ export default function App() {
             {cheDo === 'luan-giai' && lg && (
               <div ref={readingRef}>
                 <ReadingPanel luanGiai={lg} namXem={namXem} />
+                <AiPanel laSo={laSo} namXem={namXem} chartId={khoa} />
               </div>
             )}
           </>
