@@ -1,7 +1,8 @@
-import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react';
+import { useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react';
 import { SON, cungTheoSo, kiemHuong, sonTheoDo, viTriTrongSon } from '../lib/phiTinh';
 import { luuHuongChon } from '../lib/phiTinhLuu';
 import { chuyen } from '../lib/router';
+import { namThapPhan, tinhTuThien } from '../lib/tuThien';
 import { slugTen, xuatNodePdf, xuatNodePng } from '../lib/xuatAnh';
 import { Card, Field, GhiChu, Pill, inputStyle } from './dp-ui';
 
@@ -40,8 +41,21 @@ export default function LaBanView() {
   const [loi, setLoi] = useState('');
   const [dangXuat, setDangXuat] = useState<'' | 'png' | 'pdf'>('');
 
+  // Độ từ thiên lấy theo mô hình WMM2025. Mặc định đặt toạ độ Pleiku để ai mở
+  // trang cũng thấy ngay một con số hợp lý; bấm nút thì lấy vị trí thật.
+  const [viDo, setViDo] = useState(13.98);
+  const [kinhDo, setKinhDo] = useState(108.0);
+  const [dangLayViTri, setDangLayViTri] = useState(false);
+  const [nguonTuThien, setNguonTuThien] = useState<'tay' | 'wmm'>('tay');
+
   const vungAnh = useRef<HTMLDivElement>(null);
   const dangKeoRef = useRef(false);
+
+  /** Kết quả mô hình tại toạ độ đang nhập, tính lại khi đổi toạ độ. */
+  const kqTuThien = useMemo(
+    () => tinhTuThien(namThapPhan(new Date()), viDo, kinhDo, 0),
+    [viDo, kinhDo],
+  );
 
   const huongThat = chuanHoa(huong + tuThien);
   const son = sonTheoDo(huongThat);
@@ -147,6 +161,43 @@ export default function LaBanView() {
       console.error(e);
       setLoi('Không bật được cảm biến. Trên máy tính để bàn, hãy dùng cách kéo tay.');
     }
+  }
+
+  /** Lấy độ từ thiên của mô hình tại toạ độ đang nhập rồi ghi vào ô. */
+  function dungTheoMoHinh() {
+    const kq = tinhTuThien(namThapPhan(new Date()), viDo, kinhDo, 0);
+    setTuThien(Math.round(kq.doTuThien * 10) / 10);
+    setNguonTuThien('wmm');
+    setLoi('');
+  }
+
+  /** Hỏi vị trí hiện tại rồi tính luôn độ từ thiên cho chỗ đang đứng. */
+  function layViTri() {
+    if (!('geolocation' in navigator)) {
+      setLoi('Trình duyệt không cho lấy vị trí. Bạn nhập tay vĩ độ và kinh độ bên dưới.');
+      return;
+    }
+    setDangLayViTri(true);
+    setLoi('');
+    navigator.geolocation.getCurrentPosition(
+      (vt) => {
+        const vi = Math.round(vt.coords.latitude * 100) / 100;
+        const kinh = Math.round(vt.coords.longitude * 100) / 100;
+        const cao = (vt.coords.altitude ?? 0) / 1000;
+        const kq = tinhTuThien(namThapPhan(new Date()), vi, kinh, cao);
+        setViDo(vi);
+        setKinhDo(kinh);
+        setTuThien(Math.round(kq.doTuThien * 10) / 10);
+        setNguonTuThien('wmm');
+        setDangLayViTri(false);
+      },
+      (e) => {
+        console.error(e);
+        setDangLayViTri(false);
+        setLoi('Không lấy được vị trí. Bạn nhập tay vĩ độ và kinh độ, hoặc tra bảng của Viện Vật lý Địa cầu.');
+      },
+      { timeout: 12000, maximumAge: 600000 },
+    );
   }
 
   async function xuat(kieu: 'png' | 'pdf') {
@@ -342,22 +393,77 @@ export default function LaBanView() {
 
               <Field
                 label="Độ từ thiên"
-                hint="Cộng vào hướng kim để ra bắc thật. Việt Nam thường trong khoảng −1° đến +1°."
+                hint="Cộng vào hướng kim để ra bắc thật. Việt Nam thường trong khoảng −2° đến 0°."
               >
                 <input
                   type="number"
-                  min={-10}
-                  max={10}
+                  min={-30}
+                  max={30}
                   step={0.1}
                   value={tuThien}
                   onChange={(e) => {
                     const v = Number(e.target.value);
-                    if (Number.isFinite(v)) setTuThien(Math.round(v * 10) / 10);
+                    if (Number.isFinite(v)) {
+                      setTuThien(Math.round(v * 10) / 10);
+                      setNguonTuThien('tay');
+                    }
+                  }}
+                  style={inputStyle}
+                />
+              </Field>
+
+              <Field label="Vĩ độ" hint="Dương là bắc. Dùng để tra độ từ thiên.">
+                <input
+                  type="number"
+                  min={-90}
+                  max={90}
+                  step={0.01}
+                  value={viDo}
+                  onChange={(e) => {
+                    const v = Number(e.target.value);
+                    if (Number.isFinite(v)) setViDo(Math.max(-90, Math.min(90, v)));
+                  }}
+                  style={inputStyle}
+                />
+              </Field>
+
+              <Field label="Kinh độ" hint="Dương là đông.">
+                <input
+                  type="number"
+                  min={-180}
+                  max={180}
+                  step={0.01}
+                  value={kinhDo}
+                  onChange={(e) => {
+                    const v = Number(e.target.value);
+                    if (Number.isFinite(v)) setKinhDo(Math.max(-180, Math.min(180, v)));
                   }}
                   style={inputStyle}
                 />
               </Field>
             </div>
+
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 12 }}>
+              <button className="btn-ghost" type="button" onClick={layViTri} disabled={dangLayViTri}>
+                {dangLayViTri ? 'Đang lấy vị trí…' : 'Lấy vị trí và tính'}
+              </button>
+              <button className="btn-ghost" type="button" onClick={dungTheoMoHinh}>
+                Tính theo toạ độ đã nhập
+              </button>
+            </div>
+
+            <p style={{ margin: '8px 0 0', fontSize: 11.8, lineHeight: 1.65, color: 'var(--muted-2)' }}>
+              WMM2025 tại {viDo.toFixed(2)}° / {kinhDo.toFixed(2)}°:{' '}
+              <strong style={{ color: 'var(--text)' }}>{kqTuThien.doTuThien.toFixed(2)}°</strong>{' '}
+              ({kqTuThien.doTuThien < 0 ? 'lệch tây' : 'lệch đông'}), độ từ khuynh{' '}
+              {kqTuThien.doTuKhuynh.toFixed(1)}°, thành phần nằm ngang {Math.round(kqTuThien.H)} nT.{' '}
+              {nguonTuThien === 'wmm'
+                ? 'Ô độ từ thiên đang lấy theo mô hình.'
+                : 'Ô độ từ thiên đang nhập tay, bấm nút để lấy theo mô hình.'}
+              {kqTuThien.ngoaiHieuLuc
+                ? ' Năm nay nằm ngoài hiệu lực 2025–2030 của mô hình nên số chỉ để tham khảo.'
+                : ''}
+            </p>
 
             <input
               type="range"
