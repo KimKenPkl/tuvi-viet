@@ -240,7 +240,7 @@ console.log('\n— Phi tinh năm —');
 const MOC_NAM: [number, number, number][] = [
   // [năm, sao nhập trung, cung có Ngũ Hoàng]
   [2024, 3, 7],
-  [2025, 2, 2],
+  [2025, 2, 8],
   [2026, 1, 9],
 ];
 for (const [nam, sao, cungNguHoang] of MOC_NAM) {

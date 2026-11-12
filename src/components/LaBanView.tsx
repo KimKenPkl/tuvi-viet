@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } f
 import { SON, cungTheoSo, kiemHuong, sonTheoDo, viTriTrongSon } from '../lib/phiTinh';
 import { luuHuongChon } from '../lib/phiTinhLuu';
 import { chuyen } from '../lib/router';
-import { slugTen, xuatNodePng } from '../lib/xuatAnh';
+import { slugTen, xuatNodePdf, xuatNodePng } from '../lib/xuatAnh';
 import { Card, Field, GhiChu, Pill, inputStyle } from './dp-ui';
 
 const chuanHoa = (goc: number): number => ((goc % 360) + 360) % 360;
@@ -38,7 +38,7 @@ export default function LaBanView() {
   const [camBien, setCamBien] = useState(false);
   const [saiSo, setSaiSo] = useState<number | null>(null);
   const [loi, setLoi] = useState('');
-  const [dangXuat, setDangXuat] = useState(false);
+  const [dangXuat, setDangXuat] = useState<'' | 'png' | 'pdf'>('');
 
   const vungAnh = useRef<HTMLDivElement>(null);
   const dangKeoRef = useRef(false);
@@ -149,17 +149,19 @@ export default function LaBanView() {
     }
   }
 
-  async function xuatAnh() {
+  async function xuat(kieu: 'png' | 'pdf') {
     if (!vungAnh.current) return;
-    setDangXuat(true);
+    setDangXuat(kieu);
     setLoi('');
     try {
-      await xuatNodePng(vungAnh.current, `la-ban-${slugTen(`${son.ten}-${Math.round(huongThat)}`)}.png`);
+      const goc = `la-ban-${slugTen(`${son.ten}-${Math.round(huongThat)}`)}`;
+      if (kieu === 'png') await xuatNodePng(vungAnh.current, `${goc}.png`);
+      else await xuatNodePdf(vungAnh.current, `${goc}.pdf`);
     } catch (e) {
       console.error(e);
-      setLoi('Trình duyệt không xuất được ảnh. Bạn có thể chụp màn hình thay thế.');
+      setLoi('Trình duyệt không xuất được tệp. Bạn có thể chụp màn hình thay thế.');
     } finally {
-      setDangXuat(false);
+      setDangXuat('');
     }
   }
 
@@ -378,8 +380,21 @@ export default function LaBanView() {
                   Dùng cảm biến điện thoại
                 </button>
               )}
-              <button className="btn-ghost" type="button" onClick={xuatAnh} disabled={dangXuat}>
-                {dangXuat ? 'Đang xuất…' : 'Xuất ảnh PNG'}
+              <button
+                className="btn-ghost"
+                type="button"
+                onClick={() => xuat('png')}
+                disabled={dangXuat !== ''}
+              >
+                {dangXuat === 'png' ? 'Đang xuất…' : 'Xuất ảnh PNG'}
+              </button>
+              <button
+                className="btn-ghost"
+                type="button"
+                onClick={() => xuat('pdf')}
+                disabled={dangXuat !== ''}
+              >
+                {dangXuat === 'pdf' ? 'Đang xuất…' : 'Xuất PDF'}
               </button>
               <button className="btn-primary" type="button" onClick={moPhiTinh}>
                 Lập bàn phi tinh

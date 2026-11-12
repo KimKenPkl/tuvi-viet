@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { CHI } from '../lib/amlich';
 import {
+  CUNG,
   SAO,
   SON,
   banNam,
@@ -9,8 +11,10 @@ import {
   sonTheoDo,
   type CungPhiTinh,
 } from '../lib/phiTinh';
+import { bonLopThoiGian, type KieuThang, type LopThoiGian } from '../lib/phiTinhThoiGian';
 import { docHuongChon } from '../lib/phiTinhLuu';
-import { slugTen, xuatNodePng } from '../lib/xuatAnh';
+import { lapBanTheQuai, type BanTheQuai } from '../lib/theQuai';
+import { slugTen, xuatNodePdf, xuatNodePng } from '../lib/xuatAnh';
 import { Card, Field, GhiChu, Pill, inputStyle } from './dp-ui';
 
 const NAM_NAY = new Date().getFullYear();
@@ -74,14 +78,105 @@ function O({
   );
 }
 
+/** Chín cung theo đúng thứ tự vẽ, tính một lần lúc nạp module. */
+const CUNG_VE = [...CUNG].sort((a, b) => a.viTri - b.viTri);
+
+/** Khung giờ của 12 chi, chỉ để hiện trong ô chọn. */
+const KHUNG_GIO = [
+  '23–01',
+  '01–03',
+  '03–05',
+  '05–07',
+  '07–09',
+  '09–11',
+  '11–13',
+  '13–15',
+  '15–17',
+  '17–19',
+  '19–21',
+  '21–23',
+] as const;
+
+const TEN_LOP: Record<LopThoiGian['loai'], string> = {
+  nam: 'Niên tinh',
+  thang: 'Nguyệt tinh',
+  ngay: 'Nhật tinh',
+  gio: 'Thời tinh',
+};
+
+/** Ngày hôm nay dạng yyyy-mm-dd theo giờ máy. */
+function homNay(): string {
+  const d = new Date();
+  const thang = String(d.getMonth() + 1).padStart(2, '0');
+  const ngayTrongThang = String(d.getDate()).padStart(2, '0');
+  return `${d.getFullYear()}-${thang}-${ngayTrongThang}`;
+}
+
+/** Chuỗi yyyy-mm-dd thành Date đúng ngày, đặt 12:00 để không lệch múi giờ. */
+function ngayTuChuoi(s: string): Date {
+  const [y, m, d] = s.split('-').map(Number);
+  return new Date(y, (m || 1) - 1, d || 1, 12, 0, 0, 0);
+}
+
+/** Chỉ số giờ Tý…Hợi của thời điểm hiện tại. */
+function gioHienTai(): number {
+  return Math.floor(((new Date().getHours() + 1) % 24) / 2);
+}
+
+/** Một bàn sao thời gian thu nhỏ: 3×3, ô giữa là sao nhập trung. */
+function BangLop({ lop }: { lop: LopThoiGian }) {
+  return (
+    <div className="pst-the">
+      <div className="pst-the-head">
+        <strong>{TEN_LOP[lop.loai]}</strong>
+        <span className={`pst-trung sao-mau-${lop.sao}`} title={`Sao ${lop.sao} nhập trung`}>
+          {lop.sao}
+        </span>
+      </div>
+      <p className="pst-the-nhan">{lop.nhan}</p>
+      <div className="pst-ban" role="img" aria-label={`Bàn ${TEN_LOP[lop.loai].toLowerCase()}`}>
+        {CUNG_VE.map((c) => (
+          <span
+            key={c.so}
+            className={`pst-o${c.so === 5 ? ' is-trung' : ''} sao-mau-${lop.ban[c.so]}`}
+          >
+            {lop.ban[c.so]}
+          </span>
+        ))}
+      </div>
+      <p className="pst-the-ghi">{lop.ghiChu}</p>
+    </div>
+  );
+}
+
+/** Bàn thế quái thu nhỏ: mỗi ô hai số, trên là sơn tinh, dưới là hướng tinh. */
+function BangTheQuai({ ban }: { ban: BanTheQuai }) {
+  return (
+    <div className="pst-theq-luoi" role="img" aria-label="Bàn thế quái">
+      {ban.cung.map((c) => (
+        <span key={c.so} className={`pst-theq-o${c.so === 5 ? ' is-trung' : ''}`}>
+          <b className={`sao-mau-${c.son}`}>{c.son}</b>
+          <i className={`sao-mau-${c.huongSao}`}>{c.huongSao}</i>
+        </span>
+      ))}
+    </div>
+  );
+}
+
 export default function PhiTinhView() {
   const [nam, setNam] = useState(() => Math.min(NAM_CUOI, Math.max(NAM_DAU, NAM_NAY)));
   const [huong, setHuong] = useState(180);
   const [hienNien, setHienNien] = useState(false);
-  const [dangXuat, setDangXuat] = useState(false);
+  const [dangXuat, setDangXuat] = useState<'' | 'png' | 'pdf' | 'tg'>('');
   const [loiXuat, setLoiXuat] = useState('');
 
+  // Khối bốn lớp sao thời gian: ngày, giờ và cách chia tháng.
+  const [ngay, setNgay] = useState(homNay);
+  const [gio, setGio] = useState(gioHienTai);
+  const [kieuThang, setKieuThang] = useState<KieuThang>('tiet-khi');
+
   const vungAnh = useRef<HTMLDivElement>(null);
+  const vungThoiGian = useRef<HTMLDivElement>(null);
 
   // Hướng do trang la bàn chuyển sang. Đọc trong effect để StrictMode không
   // "ăn" mất giá trị ở lần chạy thử thứ nhất.
@@ -92,23 +187,30 @@ export default function PhiTinhView() {
 
   const ban = useMemo(() => lapBanPhiTinh(nam, huong), [nam, huong]);
   const nien = useMemo(() => banNam(nam), [nam]);
+  const theQuai = useMemo(() => lapBanTheQuai(nam, huong), [nam, huong]);
+  const ngayChon = useMemo(() => ngayTuChuoi(ngay), [ngay]);
+  const bonLop = useMemo(
+    () => bonLopThoiGian(ngayChon, gio, kieuThang),
+    [ngayChon, gio, kieuThang],
+  );
   const huongSon = ban.huongSon;
   const toaSon = ban.toaSon;
 
-  async function xuatAnh() {
-    if (!vungAnh.current) return;
-    setDangXuat(true);
+  async function xuat(kieu: 'png' | 'pdf' | 'tg') {
+    const node = kieu === 'tg' ? vungThoiGian.current : vungAnh.current;
+    if (!node) return;
+    setDangXuat(kieu);
     setLoiXuat('');
     try {
-      await xuatNodePng(
-        vungAnh.current,
-        `phi-tinh-${ban.nam}-${slugTen(`${huongSon.ten}-${ban.huongDo}`)}.png`,
-      );
+      const goc = `phi-tinh-${ban.nam}-${slugTen(`${huongSon.ten}-${ban.huongDo}`)}`;
+      if (kieu === 'png') await xuatNodePng(node, `${goc}.png`);
+      else if (kieu === 'pdf') await xuatNodePdf(node, `${goc}.pdf`);
+      else await xuatNodePng(node, `${goc}-bon-lop-thoi-gian.png`);
     } catch (e) {
       console.error(e);
-      setLoiXuat('Trình duyệt không xuất được ảnh. Bạn có thể chụp màn hình thay thế.');
+      setLoiXuat('Trình duyệt không xuất được tệp. Bạn có thể chụp màn hình thay thế.');
     } finally {
-      setDangXuat(false);
+      setDangXuat('');
     }
   }
 
@@ -220,8 +322,21 @@ export default function PhiTinhView() {
         <Pill tone="blue">
           Toạ {toaSon.ten} {ban.toaDo}°
         </Pill>
-        <button className="btn-ghost" type="button" onClick={xuatAnh} disabled={dangXuat}>
-          {dangXuat ? 'Đang xuất…' : 'Xuất ảnh PNG'}
+        <button
+          className="btn-ghost"
+          type="button"
+          onClick={() => xuat('png')}
+          disabled={dangXuat !== ''}
+        >
+          {dangXuat === 'png' ? 'Đang xuất…' : 'Xuất ảnh PNG'}
+        </button>
+        <button
+          className="btn-ghost"
+          type="button"
+          onClick={() => xuat('pdf')}
+          disabled={dangXuat !== ''}
+        >
+          {dangXuat === 'pdf' ? 'Đang xuất…' : 'Xuất PDF'}
         </button>
         <label
           style={{
@@ -330,19 +445,75 @@ export default function PhiTinhView() {
           </div>
 
           {ban.kiemHuong ? (
-            <Card
-              style={{ borderColor: 'var(--red-vien)', background: 'var(--red-mo)', padding: 14 }}
-            >
-              <strong style={{ color: 'var(--red)', fontSize: 13 }}>
-                Kiêm hướng — trục đo cách ranh giới {ban.lechRanh.toFixed(1)}°
-              </strong>
-              <p style={{ margin: '6px 0 0', color: 'var(--text)', fontSize: 12.8, lineHeight: 1.75 }}>
-                Hướng rơi vào vùng sát ranh giới hai sơn. Các phái lập bàn xử lý trường hợp này
-                khác nhau (lấy sơn gần nhất, thế quái, phân kim…), nên bàn dưới đây lập theo sơn
-                gần nhất và chỉ nên đọc như một phương án tham khảo. Đo lại bằng la bàn thật hoặc
-                máy toàn đạc nếu việc chọn hướng quan trọng.
-              </p>
-            </Card>
+            <>
+              <Card
+                style={{ borderColor: 'var(--red-vien)', background: 'var(--red-mo)', padding: 14 }}
+              >
+                <strong style={{ color: 'var(--red)', fontSize: 13 }}>
+                  Kiêm hướng — trục đo cách ranh giới {ban.lechRanh.toFixed(1)}°
+                </strong>
+                <p style={{ margin: '6px 0 0', color: 'var(--text)', fontSize: 12.8, lineHeight: 1.75 }}>
+                  Hướng rơi vào vùng sát ranh giới hai sơn. Các phái lập bàn xử lý trường hợp này
+                  khác nhau (lấy sơn gần nhất, thế quái, phân kim…), nên bàn phía trên lập theo sơn
+                  gần nhất và chỉ nên đọc như một phương án tham khảo. Đo lại bằng la bàn thật hoặc
+                  máy toàn đạc nếu việc chọn hướng quan trọng.
+                </p>
+              </Card>
+
+              {theQuai && (
+                <Card style={{ padding: 16 }}>
+                  <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+                    <Pill tone="gold">Bàn thế quái</Pill>
+                    <span style={{ color: 'var(--muted-2)', fontSize: 11.5 }}>
+                      {toaSon.ten} kiêm {theQuai.kiemToa?.ten ?? '—'} · {huongSon.ten} kiêm{' '}
+                      {theQuai.kiemHuongSon?.ten ?? '—'}
+                    </span>
+                  </div>
+
+                  <div
+                    style={{
+                      display: 'flex',
+                      gap: 14,
+                      alignItems: 'flex-start',
+                      marginTop: 12,
+                      flexWrap: 'wrap',
+                    }}
+                  >
+                    <BangTheQuai ban={theQuai} />
+                    <div style={{ flex: '1 1 170px', minWidth: 160 }}>
+                      <p style={{ margin: 0, fontSize: 12.5, lineHeight: 1.7, color: 'var(--text)' }}>
+                        Sơn tinh nhập trung {theQuai.sonThe} · hướng tinh nhập trung{' '}
+                        {theQuai.huongThe}.
+                      </p>
+                      <p
+                        style={{
+                          margin: '6px 0 0',
+                          fontSize: 12.5,
+                          lineHeight: 1.7,
+                          color: 'var(--muted)',
+                        }}
+                      >
+                        Hạ quái dùng {theQuai.sonHaQuai} và {theQuai.huongHaQuai}.
+                        {theQuai.khongDoi
+                          ? ' Thế tinh trùng sao hạ quái, tức "tạm không thay" — hai bàn giống nhau.'
+                          : ' Thế tinh khác sao hạ quái nên hai bàn khác nhau.'}
+                      </p>
+                      <p
+                        style={{
+                          margin: '6px 0 0',
+                          fontSize: 11.8,
+                          lineHeight: 1.65,
+                          color: 'var(--muted-2)',
+                        }}
+                      >
+                        Lối lấy thế tinh của sơn kiêm cho ra {theQuai.sonTheKiem} /{' '}
+                        {theQuai.huongTheKiem}.
+                      </p>
+                    </div>
+                  </div>
+                </Card>
+              )}
+            </>
           ) : (
             <GhiChu>
               Trục đo nằm giữa sơn {huongSon.ten}, cách ranh giới gần nhất {ban.lechRanh.toFixed(1)}°
@@ -351,6 +522,98 @@ export default function PhiTinhView() {
           )}
         </div>
       </div>
+
+      <Card style={{ padding: 18 }}>
+        <div
+          style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'baseline', marginBottom: 4 }}
+        >
+          <h4 style={{ margin: 0, fontSize: 14, color: 'var(--cream)' }}>Bốn lớp sao thời gian</h4>
+          <span style={{ color: 'var(--muted-2)', fontSize: 11.5 }}>
+            nguyệt tinh · nhật tinh · thời tinh
+          </span>
+        </div>
+        <p style={{ margin: '0 0 14px', color: 'var(--muted)', fontSize: 13, lineHeight: 1.7 }}>
+          Bàn phía trên lập theo vận nhập trạch. Bốn bàn dưới đây là sao của phái Tử Bạch cho một
+          ngày giờ bất kỳ: năm, tháng, ngày và giờ.
+        </p>
+
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+            gap: 14,
+          }}
+        >
+          <Field label="Ngày" hint="Tính theo giờ Việt Nam (UTC+7).">
+            <input
+              type="date"
+              min="1900-01-01"
+              max="2100-12-31"
+              value={ngay}
+              onChange={(e) => {
+                if (e.target.value) setNgay(e.target.value);
+              }}
+              style={inputStyle}
+            />
+          </Field>
+
+          <Field label="Giờ" hint="Giờ Tý tính từ 23:00; ở đây giờ Tý thuộc chính ngày đang chọn.">
+            <select value={gio} onChange={(e) => setGio(Number(e.target.value))} style={inputStyle}>
+              {CHI.map((c, i) => (
+                <option key={c} value={i}>
+                  Giờ {c} · {KHUNG_GIO[i]}h
+                </option>
+              ))}
+            </select>
+          </Field>
+
+          <Field
+            label="Cách chia tháng"
+            hint="Tiết khí: Lập Xuân khởi tháng Giêng. Âm lịch: theo tháng âm."
+          >
+            <select
+              value={kieuThang}
+              onChange={(e) => setKieuThang(e.target.value as KieuThang)}
+              style={inputStyle}
+            >
+              <option value="tiet-khi">Tháng tiết khí (Lập Xuân)</option>
+              <option value="am-lich">Tháng âm lịch</option>
+            </select>
+          </Field>
+        </div>
+
+        <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 12 }}>
+          <button
+            className="btn-ghost"
+            type="button"
+            onClick={() => xuat('tg')}
+            disabled={dangXuat !== ''}
+          >
+            {dangXuat === 'tg' ? 'Đang xuất…' : 'Xuất ảnh bốn bàn'}
+          </button>
+        </div>
+
+        <div ref={vungThoiGian} className="pst-hop">
+          <div className="pst-luoi">
+            {bonLop.map((l) => (
+              <BangLop key={l.loai} lop={l} />
+            ))}
+          </div>
+          <p className="pst-chan">
+            Ngày {ngay.split('-').reverse().join('/')} · giờ {CHI[gio]} ·{' '}
+            {kieuThang === 'tiet-khi' ? 'tháng tiết khí' : 'tháng âm lịch'} — tuvi-viet.github.io
+          </p>
+        </div>
+
+        <GhiChu>
+          <strong style={{ color: 'var(--text)' }}>Ba lưu ý khi đọc:</strong> niên tinh đổi ở Lập
+          Xuân và luôn phi thuận; nguyệt tinh lùi một sao mỗi tháng rồi phi thuận; nhật tinh và thời
+          tinh lấy ngày Giáp Tý gần tiết khí mốc nhất, nửa dương phi thuận, nửa âm phi nghịch. Giờ
+          Tý muộn (23:00–24:00) theo lệ cổ thuộc ngày hôm sau, ở đây tính cho ngày đang chọn. Các
+          phái còn lệch nhau ở chỗ dùng tháng tiết khí hay tháng âm lịch, nên đổi qua lại để đối
+          chiếu.
+        </GhiChu>
+      </Card>
 
       <Card style={{ padding: 18 }}>
         <h4 style={{ margin: '0 0 10px', fontSize: 14, color: 'var(--cream)' }}>

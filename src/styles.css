@@ -4246,3 +4246,156 @@ em {
     font-size: 10px;
   }
 }
+
+/* ── Bốn lớp sao thời gian (Tử Bạch) ─────────────────────────────────────── */
+
+.pst-hop {
+  margin-top: 4px;
+  padding: 14px;
+  border-radius: 14px;
+  border: 1px solid var(--line);
+  background: var(--bg-2);
+}
+
+/* Lưới bốn thẻ: niên – nguyệt – nhật – thời */
+.pst-luoi {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 12px;
+}
+
+.pst-the {
+  padding: 11px 12px 10px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--sheen-1);
+}
+
+.pst-the-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.pst-the-head strong {
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* Sao nhập trung, phóng to để liếc là thấy */
+.pst-trung {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.pst-the-nhan {
+  margin: 4px 0 8px;
+  font-size: 12.5px;
+  color: var(--text);
+}
+
+/* Lưới 3x3 của một bàn sao */
+.pst-ban {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 4px;
+}
+
+.pst-o {
+  display: grid;
+  place-items: center;
+  min-height: 33px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: var(--sheen-1);
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.pst-o.is-trung {
+  border-color: var(--line-strong);
+  background: var(--gold-mo);
+}
+
+.pst-the-ghi {
+  margin: 8px 0 0;
+  font-size: 10.5px;
+  line-height: 1.55;
+  color: var(--muted-2);
+}
+
+.pst-chan {
+  margin: 10px 0 0;
+  font-size: 10px;
+  text-align: center;
+  color: var(--muted-2);
+}
+
+/* Bàn thế quái thu nhỏ: mỗi ô hai số, trên là sơn tinh, dưới là hướng tinh */
+.pst-theq-luoi {
+  flex: none;
+  display: grid;
+  grid-template-columns: repeat(3, 56px);
+  gap: 4px;
+}
+
+.pst-theq-o {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  height: 48px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--sheen-1);
+  font-family: var(--font-display);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.pst-theq-o b {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.pst-theq-o i {
+  font-size: 12px;
+  font-style: normal;
+  opacity: 0.85;
+}
+
+.pst-theq-o.is-trung {
+  border-color: var(--line-strong);
+  background: var(--gold-mo);
+}
+
+@media (max-width: 560px) {
+  .pst-hop {
+    padding: 10px;
+  }
+
+  .pst-luoi {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .pst-o {
+    min-height: 30px;
+    font-size: 15px;
+  }
+
+  .pst-theq-luoi {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    width: 100%;
+  }
+}

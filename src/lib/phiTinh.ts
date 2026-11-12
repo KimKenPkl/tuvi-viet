@@ -253,10 +253,17 @@ export function saoNam(nam: number): number {
   return du === 0 ? 9 : du;
 }
 
-/** Bàn phi tinh theo năm: sao năm nhập trung, phi thuận nếu sao lẻ, nghịch nếu chẵn. */
+/**
+ * Bàn niên tinh (年紫白): sao năm nhập trung rồi phi THUẬN ra tám cung.
+ *
+ * Nguyên văn 年紫白: "上元甲子起一白，中元四绿推甲子，下元七赤兑宫寻，逐年星逆
+ * 中宫始" và phần ví dụ "以此星入中顺飞八方" — sao lùi một đơn vị mỗi năm, nhưng
+ * khi đã nhập trung thì luôn phi thuận, không phân biệt chẵn lẻ.
+ * (Đối chiếu: 2025 niên tinh 2, Ngũ Hoàng tới Đông Bắc; 2026 niên tinh 1, Ngũ
+ * Hoàng tới Nam.)
+ */
 export function banNam(nam: number): Record<number, number> {
-  const sao = saoNam(nam);
-  return phi(sao, sao % 2 === 1 ? 1 : -1);
+  return phi(saoNam(nam), 1);
 }
 
 export interface CungPhiTinh {
@@ -334,6 +341,50 @@ const MO_TA_KIEU: Record<KieuBan, Omit<PhanTich, 'kieu'>> = {
   },
 };
 
+/** Dựng chín cung theo đúng thứ tự vẽ (Nam trên, Bắc dưới). */
+export function dungCung(
+  banVan: Record<number, number>,
+  banSon: Record<number, number>,
+  banHuong: Record<number, number>,
+): CungPhiTinh[] {
+  return [...CUNG]
+    .sort((a, b) => a.viTri - b.viTri)
+    .map((c) => ({
+      so: c.so,
+      ten: c.ten,
+      huong: c.huong,
+      viTri: c.viTri,
+      van: banVan[c.so],
+      son: banSon[c.so],
+      huongSao: banHuong[c.so],
+    }));
+}
+
+/**
+ * Đọc thế bàn từ hai bàn sơn tinh và hướng tinh: bốn kiểu thường gặp.
+ * Dùng chung cho bàn hạ quái và bàn thế quái để hai bàn không lệch cách đọc.
+ */
+export function phanTichBan(
+  banSon: Record<number, number>,
+  banHuong: Record<number, number>,
+  van: number,
+  toaSon: Son,
+  huongSon: Son,
+): PhanTich {
+  const sonTaiToa = banSon[toaSon.cung];
+  const sonTaiHuong = banSon[huongSon.cung];
+  const huongTaiToa = banHuong[toaSon.cung];
+  const huongTaiHuong = banHuong[huongSon.cung];
+
+  let kieu: KieuBan = 'thuong';
+  if (sonTaiToa === van && huongTaiHuong === van) kieu = 'vuong-son-vuong-huong';
+  else if (sonTaiHuong === van && huongTaiHuong === van) kieu = 'song-tinh-hoi-huong';
+  else if (sonTaiToa === van && huongTaiToa === van) kieu = 'song-tinh-hoi-toa';
+  else if (sonTaiHuong === van && huongTaiToa === van) kieu = 'thuong-son-ha-thuy';
+
+  return { kieu, ...MO_TA_KIEU[kieu] };
+}
+
 /**
  * Lập bàn phi tinh cho một hướng nhà.
  *
@@ -352,29 +403,7 @@ export function lapBanPhiTinh(nam: number, huongDo: number): BanPhiTinh {
   const banSon = phi(sonNhapTrung, toaSon.duong ? 1 : -1);
   const banHuong = phi(huongNhapTrung, huongSon.duong ? 1 : -1);
 
-  const cung: CungPhiTinh[] = [...CUNG]
-    .sort((a, b) => a.viTri - b.viTri)
-    .map((c) => ({
-      so: c.so,
-      ten: c.ten,
-      huong: c.huong,
-      viTri: c.viTri,
-      van: banVan[c.so],
-      son: banSon[c.so],
-      huongSao: banHuong[c.so],
-    }));
-
-  const sonTaiToa = banSon[toaSon.cung];
-  const sonTaiHuong = banSon[huongSon.cung];
-  const huongTaiToa = banHuong[toaSon.cung];
-  const huongTaiHuong = banHuong[huongSon.cung];
-
-  let kieu: KieuBan = 'thuong';
-  if (sonTaiToa === van && huongTaiHuong === van) kieu = 'vuong-son-vuong-huong';
-  else if (sonTaiHuong === van && huongTaiHuong === van) kieu = 'song-tinh-hoi-huong';
-  else if (sonTaiToa === van && huongTaiToa === van) kieu = 'song-tinh-hoi-toa';
-  else if (sonTaiHuong === van && huongTaiToa === van) kieu = 'thuong-son-ha-thuy';
-
+  const cung = dungCung(banVan, banSon, banHuong);
   const { kiem, lech } = kiemHuong(huongDo);
 
   return {
@@ -391,6 +420,6 @@ export function lapBanPhiTinh(nam: number, huongDo: number): BanPhiTinh {
     sonNhapTrung,
     huongNhapTrung,
     cung,
-    phanTich: { kieu, ...MO_TA_KIEU[kieu] },
+    phanTich: phanTichBan(banSon, banHuong, van, toaSon, huongSon),
   };
 }

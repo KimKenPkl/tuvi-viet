@@ -9,7 +9,7 @@
     "build": "tsc --noEmit && vite build",
     "typecheck": "tsc --noEmit",
     "preview": "vite preview",
-    "test": "tsx src/lib/__tests__/engine.test.ts && tsx src/lib/__tests__/amlich.test.ts && tsx src/lib/__tests__/canChi.test.ts && tsx src/lib/__tests__/dongPhuong.test.ts && tsx src/lib/__tests__/soSim.test.ts && tsx src/lib/__tests__/tuoiHan.test.ts && tsx src/lib/__tests__/tietKhi.test.ts && tsx src/lib/__tests__/kinhDich.test.ts && tsx src/lib/__tests__/phiTinh.test.ts && tsx src/lib/__tests__/ai.test.ts && tsx src/lib/__tests__/render.test.tsx"
+    "test": "tsx src/lib/__tests__/engine.test.ts && tsx src/lib/__tests__/amlich.test.ts && tsx src/lib/__tests__/canChi.test.ts && tsx src/lib/__tests__/dongPhuong.test.ts && tsx src/lib/__tests__/soSim.test.ts && tsx src/lib/__tests__/tuoiHan.test.ts && tsx src/lib/__tests__/tietKhi.test.ts && tsx src/lib/__tests__/kinhDich.test.ts && tsx src/lib/__tests__/phiTinh.test.ts && tsx src/lib/__tests__/phiTinhThoiGian.test.ts && tsx src/lib/__tests__/theQuai.test.ts && tsx src/lib/__tests__/ai.test.ts && tsx src/lib/__tests__/render.test.tsx"
   },
   "dependencies": {
     "html-to-image": "^1.11.13",
