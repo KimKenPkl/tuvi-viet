@@ -35,6 +35,12 @@ Không máy chủ, không tài khoản, không gửi ngày sinh đi đâu.
 | **Xuất PDF** | Ghép lá số (hoặc phần luận giải đang mở) và ghi chú thành tệp A4 nhiều trang, nạp `jspdf` động |
 | **Khác** | Chia sẻ lá số qua URL, in bằng `Ctrl+P` |
 | **Hỏi AI (tuỳ chọn)** | Hỏi một câu / luận vận hạn / luận toàn lá số. BYOK: tự dán API key Gemini hoặc OpenRouter, key chỉ nằm trên máy |
+| **Phương Đông** | Hub `/phuong-dong` gồm 10 công cụ, mỗi công cụ một URL riêng, mỗi trang kèm phần giải thích nguồn gốc và cách đọc |
+| **Tiết khí** | 24 tiết khí tính bằng kinh độ Mặt Trời (Meeus ch. 25), quy về UTC+7, kèm ngày giờ bắt đầu từng tiết |
+| **Kinh Dịch** | Gieo quẻ bằng ba đồng xu, lịch sử gieo lưu trên máy, tra cứu đủ 64 quẻ với quẻ biến và hào động |
+| **Phi tinh Huyền Không** | Lập bàn 9 cung theo vận và hướng nhà, ba lớp sơn – vận – hướng, bốn thế bàn, chồng niên tinh, cảnh báo kiêm hướng |
+| **La bàn 24 sơn** | Kéo tay, nhập số độ hoặc dùng cảm biến điện thoại; quy ra 24 sơn, toạ sơn đối diện, cảnh báo sát ranh giới; chuyển thẳng sang bàn phi tinh |
+| **Công cụ khác** | Cân lượng, sao hạn & văn khấn, phong thuỷ Bát Trạch, tướng số, lịch Can Chi, số điện thoại – biển số, vận hạn theo tuổi |
 | **Riêng tư** | 100% client-side. Không analytics, không backend. Không có key nào nhúng trong bundle |
 
 ---
@@ -109,7 +115,12 @@ src/
 │  ├─ career.ts      # trắc nghiệm RIASEC và hồ sơ nghề nghiệp
 │  ├─ storage.ts     # localStorage: lá số đã lưu, ghi chú
 │  ├─ provinces.ts   # 34 tỉnh/thành + kinh độ (quy đổi giờ thật)
-│  └─ __tests__/     # test engine, lịch âm và smoke test render
+│  ├─ tietKhi.ts     # 24 tiết khí theo kinh độ Mặt Trời (Meeus ch. 25)
+│  ├─ kinhDich.ts    # gieo quẻ, 64 quẻ, quẻ biến, hào động
+│  ├─ phiTinh.ts     # Huyền Không Phi Tinh: 9 sao, 24 sơn, 3 lớp vận – sơn – hướng
+│  ├─ phiTinhLuu.ts  # chuyển hướng đo từ la bàn sang bàn phi tinh (sessionStorage)
+│  ├─ xuatAnh.ts     # xuất một khối DOM ra PNG (html-to-image nạp động)
+│  └─ __tests__/     # test engine, lịch âm, tiết khí, Kinh Dịch, phi tinh, smoke render
 ├─ components/
 │  ├─ BirthForm.tsx  # form nhập ngày giờ sinh
 │  ├─ ChartBoard.tsx # lưới 4×4
@@ -123,8 +134,12 @@ src/
 │  ├─ VanHanPanel.tsx   # vận hạn theo năm/tháng
 │  ├─ XemNgayPanel.tsx  # tra ngày cát hung
 │  ├─ XemTuoiPanel.tsx  # xây nhà / cưới hỏi
+│  ├─ PhiTinhView.tsx   # bàn Huyền Không Phi Tinh
+│  ├─ LaBanView.tsx     # la bàn 24 sơn (SVG, kéo tay, cảm biến)
 │  ├─ NoteBox.tsx    # ghi chú riêng từng lá số
 │  └─ Ornaments.tsx  # hoạ tiết SVG (không ảnh, không request mạng)
+├─ pages/
+│  └─ PhuongDongApp.tsx  # hub + router riêng cho 10 công cụ phương Đông
 ├─ App.tsx
 └─ styles.css        # design system (mực đêm + vàng kim)
 ```

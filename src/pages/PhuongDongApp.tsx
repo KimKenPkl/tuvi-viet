@@ -7,6 +7,8 @@ import KhungCho from '../components/KhungCho';
 const CanLuongView = lazy(() => import('../components/CanLuongView'));
 const SaoHanView = lazy(() => import('../components/SaoHanView'));
 const PhongThuyView = lazy(() => import('../components/PhongThuyView'));
+const PhiTinhView = lazy(() => import('../components/PhiTinhView'));
+const LaBanView = lazy(() => import('../components/LaBanView'));
 const KinhDichView = lazy(() => import('../components/KinhDichView'));
 const TuongSoView = lazy(() => import('../components/TuongSoView'));
 const LichCanChiView = lazy(() => import('../components/LichCanChiView'));
@@ -36,6 +38,8 @@ interface CongCu {
   moTaDai: string;
   /** Meta description */
   meta: string;
+  /** Công cụ mới thêm, hiện nhãn ở hub */
+  moi?: boolean;
   View: ComponentType<ViewProps>;
   bai: { muc: string; doan: string[] }[];
   nguon: string;
@@ -161,6 +165,90 @@ const CONG_CU: CongCu[] = [
     nguon:
       'Bát Trạch Minh Kính và Dương Trạch Tam Yếu; phép biến hào du niên đối chiếu theo bản dịch phổ biến tại Việt Nam.',
     lienQuan: ['van-han-tuoi', 'can-luong', 'lich-can-chi'],
+  },
+  {
+    slug: 'phi-tinh',
+    ten: 'Phi tinh Huyền Không',
+    icon: '✧',
+    nhom: 'Nhà cửa',
+    moi: true,
+    moTa:
+      'Lập bàn 9 cung theo vận và hướng nhà, đọc bốn thế bàn, chồng niên tinh và xuất ảnh.',
+    tieuDe: 'Huyền Không Phi Tinh — lập bàn chín cung theo vận và hướng nhà',
+    moTaDai:
+      'Nhập năm nhập trạch và hướng nhà để lập bàn phi tinh ba lớp — sơn tinh, vận tinh, hướng tinh — xem bốn thế bàn thường gặp, chồng niên tinh của năm và xuất ảnh PNG.',
+    meta:
+      'Lập bàn Huyền Không Phi Tinh online: vận 1–9, ba lớp sao sơn – vận – hướng, bốn thế bàn vượng sơn vượng hướng, song tinh hội hướng, thượng sơn hạ thuỷ và cảnh báo kiêm hướng.',
+    View: PhiTinhView,
+    bai: [
+      {
+        muc: 'Ba lớp sao trong một cung',
+        doan: [
+          'Bàn Huyền Không chia hình vuông thành chín cung theo đồ hình Lạc Thư, cung giữa gọi là trung cung. Mỗi cung mang ba con số. Sao của vận đang cai quản nhập trung cung rồi phi theo đường Lạc Thư (Trung → Càn → Đoài → Cấn → Ly → Khảm → Khôn → Chấn → Tốn), cho ra lớp vận tinh — lớp khí vận của cả ngôi nhà.',
+          'Lớp thứ hai là sơn tinh: lấy sao vận tại cung của toạ, cho nhập trung rồi phi thuận nếu toạ là dương sơn, phi nghịch nếu là âm sơn. Lớp thứ ba là hướng tinh: làm y hệt nhưng lấy cung của hướng. Sơn tinh chủ về nhân đinh, sức khoẻ, con cái; hướng tinh chủ về tài lộc, công việc. Vận tinh là nền khí vận, hai lớp kia là cách ngôi nhà "ăn" vào nền đó.',
+        ],
+      },
+      {
+        muc: 'Bốn thế bàn thường gặp',
+        doan: [
+          'Vượng sơn vượng hướng: sơn tinh đương vận tới cung toạ, hướng tinh đương vận tới cung hướng — cả nhân đinh lẫn tài lộc đều đắc. Song tinh hội hướng: cả hai sao đương vận cùng tụ ở cung hướng, mạnh về tiền nhưng yếu về người. Song tinh hội toạ: ngược lại, mạnh về người, kém về tiền.',
+          'Thượng sơn hạ thuỷ: sơn tinh bay tới cung hướng còn hướng tinh bay tới cung toạ, tức cả hai đều nghịch chỗ. Đây là bàn bất lợi nhất trong bốn thế, nhưng sách cổ cũng nói nó chỉ nặng khi ngôi nhà thật sự "hạ thuỷ" — phía trước thấp trũng, thoát nước, phía sau trống — chứ không phải cứ thấy bàn là đập nhà.',
+          'Công cụ chỉ kết luận theo bốn thế trên. Những cách đọc chi tiết hơn (phi tinh kết hợp loan đầu, bát trạch, niên nguyệt nhật thời phi tinh) cần thêm dữ liệu và không nằm trong phạm vi một cái bàn chín cung.',
+        ],
+      },
+      {
+        muc: 'Kiêm hướng và giới hạn',
+        doan: [
+          'Khi trục đo rơi trong khoảng 3° sát ranh giới hai sơn, gọi là kiêm hướng. Các phái xử lý khác nhau: có phái lấy sơn gần nhất, có phái lập bàn thế quái, có phái dùng phân kim 120 long. Vì vậy công cụ lập bàn theo sơn gần nhất nhưng luôn cảnh báo, không tự chọn hộ.',
+          'Một bàn phi tinh chỉ nói về lý khí. Phong thuỷ còn lớp hình thế — hướng gió, ánh sáng, độ ẩm, đường đi, hàng xóm — và lớp đó thường quyết định phần lớn. Nhà hướng đẹp mà tối, ẩm, cửa mở ra cột điện thì không cứu được bằng bất kỳ bàn sao nào. Dùng công cụ để học cách người xưa mô hình hoá không gian, đừng dùng để phán một căn nhà chỉ qua hai con số.',
+        ],
+      },
+    ],
+    nguon:
+      'Trầm Thị Huyền Không Học (Thẩm Trúc Nhưng) và Trạch Vận Tân Án; cách lập bàn theo phái Tam Nguyên. Bàn trong công cụ được đối chiếu với các ca kinh điển bằng kiểm thử tự động trong mã nguồn.',
+    lienQuan: ['phong-thuy', 'la-ban', 'lich-can-chi'],
+  },
+  {
+    slug: 'la-ban',
+    ten: 'La bàn 24 sơn',
+    icon: '◈',
+    nhom: 'Nhà cửa',
+    moi: true,
+    moTa:
+      'Kéo tay hoặc dùng cảm biến điện thoại để đo hướng, quy ra 24 sơn, toạ sơn và cảnh báo kiêm hướng.',
+    tieuDe: 'La bàn 24 sơn — đo hướng nhà, quy ra sơn và cảnh báo kiêm hướng',
+    moTaDai:
+      'Mặt la bàn số vẽ theo bắc thật: kéo trên vòng tròn, nhập số độ hoặc bật cảm biến điện thoại để ra hướng, sơn, cung, toạ sơn đối diện và cảnh báo khi trục đo sát ranh giới hai sơn.',
+    meta:
+      'La bàn 24 sơn online: đo hướng nhà bằng cảm biến điện thoại hoặc kéo tay, quy ra 24 sơn, xác định toạ – hướng, cảnh báo kiêm hướng và xuất ảnh PNG.',
+    View: LaBanView,
+    bai: [
+      {
+        muc: 'Hai mươi bốn sơn chia thế nào',
+        doan: [
+          'Vòng 360° được chia thành 24 sơn, mỗi sơn 15°. Mười hai sơn là mười hai địa chi (Tý, Sửu, Dần… Hợi), tám sơn là tám thiên can (Giáp, Ất, Bính, Đinh, Canh, Tân, Nhâm, Quý), bốn sơn còn lại là bốn quái ở góc (Cấn, Tốn, Khôn, Càn). Mậu và Kỷ không có sơn vì thuộc trung cung Thổ.',
+          'Sơn Tý không nằm gọn trong 0–15° mà nằm vắt qua 0°, từ 352,5° đến 7,5°. Vì vậy trên la bàn, chính Bắc là ranh giới giữa nửa cuối sơn Nhâm và nửa đầu sơn Quý, còn 0° rơi đúng giữa sơn Tý. Đây là chỗ nhiều người mới đọc nhầm thành "Tý bắt đầu từ 0°".',
+        ],
+      },
+      {
+        muc: 'Kim la bàn và bắc thật',
+        doan: [
+          'Kim từ trường chỉ bắc từ, không chỉ bắc thật. Hai hướng lệch nhau một góc gọi là độ từ thiên, thay đổi theo vị trí và theo năm. Ở Việt Nam hiện nay góc này thường dưới 1°, nên với việc chia sơn thì gần như không ảnh hưởng; nhưng nếu đo để làm mốc chính xác thì vẫn nên cộng vào.',
+          'Cảm biến trong điện thoại cũng cho hướng từ trường và rất dễ nhiễu: gần khung thép, loa, tủ điện, ốp lưng có nam châm, thậm chí gần một chiếc điện thoại khác. Cách đo đáng tin nhất vẫn là la bàn cơ đặt trên mặt phẳng, tránh xa vật kim loại, đo ba lần ở ba vị trí trong nhà rồi lấy trung bình.',
+          'Công cụ vẽ mặt la bàn theo bắc thật, nhận độ từ thiên nhập tay. Không có dữ liệu nào được gửi lên mạng — cảm biến đọc ngay trên máy.',
+        ],
+      },
+      {
+        muc: 'Kiêm hướng: ba độ quyết định',
+        doan: [
+          'Mỗi sơn rộng 15°, nhưng phần giữa mới là "chính hướng"; ba độ sát mỗi bên ranh giới gọi là kiêm hướng. Cùng một căn nhà, đo ra 172° hay 176° có thể cho hai bàn phi tinh khác nhau hoàn toàn, vì 172,5° là ranh giới giữa sơn Bính và sơn Ngọ.',
+          'Sai số một hai độ là chuyện bình thường với la bàn cầm tay. Vì vậy nếu kết quả rơi vào vùng kiêm hướng, đừng chốt ngay: đo lại, đổi vị trí đứng, hoặc nhờ người đo bằng máy toàn đạc nếu việc chọn hướng thật sự quan trọng. Công cụ hiện cảnh báo đỏ đúng chỗ đó.',
+        ],
+      },
+    ],
+    nguon:
+      'La kinh Tam Nguyên và cách chia 24 sơn lưu hành trong các sách phong thuỷ Việt Nam; âm dương 24 sơn theo Tam Nguyên long. Độ từ thiên nhập tay, có thể tra theo mô hình IGRF.',
+    lienQuan: ['phi-tinh', 'phong-thuy', 'lich-can-chi'],
   },
   {
     slug: 'kinh-dich',
@@ -370,8 +458,14 @@ function TheCongCu({ c, i = 0 }: { c: CongCu; i?: number }) {
       className="pd-card"
       style={{ '--i': i } as CSSProperties}
     >
-      <span className="pd-card-icon" aria-hidden="true">
-        {c.icon}
+      <span className="pd-card-top">
+        <span className="pd-card-icon" aria-hidden="true">
+          {c.icon}
+        </span>
+        <span style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+          {c.moi && <span className="pd-card-moi">mới</span>}
+          <span className="pd-card-nhom">{c.nhom}</span>
+        </span>
       </span>
       <span className="pd-card-ten">{c.ten}</span>
       <span className="pd-card-mo">{c.moTa}</span>
@@ -382,19 +476,19 @@ function TheCongCu({ c, i = 0 }: { c: CongCu; i?: number }) {
 
 function TrangHub() {
   useMeta(
-    'Phương Đông — cân lượng, sao hạn, phong thuỷ, Kinh Dịch | Tử Vi Việt',
-    'Một cửa vào các công cụ phương Đông: cân lượng, sao hạn và văn khấn, phong thuỷ Bát Trạch, gieo quẻ Kinh Dịch, tướng số, lịch Can Chi, số điện thoại – biển số, vận hạn theo tuổi.',
+    'Phương Đông — cân lượng, sao hạn, phong thuỷ, phi tinh, Kinh Dịch | Tử Vi Việt',
+    'Một cửa vào các công cụ phương Đông: cân lượng, sao hạn và văn khấn, phong thuỷ Bát Trạch, phi tinh Huyền Không, la bàn 24 sơn, gieo quẻ Kinh Dịch, tướng số, lịch Can Chi, số điện thoại – biển số, vận hạn theo tuổi.',
   );
 
   return (
     <div className="pd-wrap">
       <header className="pd-hero">
         <p className="eyebrow">Phương Đông</p>
-        <h1>Cân lượng, sao hạn, phong thuỷ, Kinh Dịch — gom về một chỗ</h1>
+        <h1>Cân lượng, sao hạn, phong thuỷ, phi tinh, Kinh Dịch — gom về một chỗ</h1>
         <p className="pd-lead">
-          Tám công cụ tra cứu theo cổ pháp, mỗi công cụ một trang riêng, kèm phần giải thích
-          nguồn gốc và cách đọc. Tất cả chạy ngay trên trình duyệt: ngày sinh ông nhập không được
-          gửi đi đâu.
+          Mười công cụ tra cứu theo cổ pháp, mỗi công cụ một trang riêng, kèm phần giải thích nguồn
+          gốc và cách đọc. Tất cả chạy ngay trên trình duyệt: ngày sinh ông nhập không được gửi đi
+          đâu.
         </p>
       </header>
 
