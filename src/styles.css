@@ -3996,7 +3996,7 @@ em {
 
 .pt-facts {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(168px, 1fr));
   gap: 8px;
 }
 
@@ -4228,5 +4228,21 @@ em {
 
   .pt-legend-item {
     font-size: 11.5px;
+  }
+}
+
+/* Trên điện thoại, mặt la bàn co lại theo bề ngang nên chữ 24 sơn chỉ còn ~8px.
+   Phóng chữ theo đơn vị viewBox để vẫn đọc được mà không phải cuộn ngang. */
+@media (max-width: 560px) {
+  .lb-svg .lb-son-ten {
+    font-size: 13px;
+  }
+
+  .lb-svg .lb-do-so {
+    font-size: 9px;
+  }
+
+  .lb-svg .lb-huong-chinh {
+    font-size: 10px;
   }
 }

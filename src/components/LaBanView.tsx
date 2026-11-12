@@ -27,7 +27,9 @@ const VACH = Array.from({ length: 72 }, (_, i) => i * 5).map((goc) => {
   return { goc, lon, x1, y1, x2, y2 };
 });
 
-const DO_SO = Array.from({ length: 12 }, (_, i) => i * 30);
+// Bốn hướng chính đã có chữ BẮC/ĐÔNG/NAM/TÂY nên chỉ in số độ ở tám mốc còn lại,
+// tránh chữ số chen vào tên sơn nằm cùng trục.
+const DO_SO = [30, 60, 120, 150, 210, 240, 300, 330];
 
 export default function LaBanView() {
   const [huong, setHuong] = useState(0);
@@ -207,10 +209,11 @@ export default function LaBanView() {
             ))}
 
             {DO_SO.map((goc) => {
-              const [x, y] = toaDo(goc, 176);
+              const [x, y] = toaDo(goc, 184);
               return (
                 <text
                   key={goc}
+                  className="lb-do-so"
                   x={x}
                   y={y}
                   fill="var(--muted-2)"
@@ -245,11 +248,12 @@ export default function LaBanView() {
             <circle r="112" fill="none" stroke="var(--line)" strokeWidth="0.8" />
 
             {SON.map((s) => {
-              const [x, y] = toaDo(s.batDau + 7.5, 146);
+              const [x, y] = toaDo(s.batDau + 7.5, 141);
               const chon = s.ten === son.ten;
               return (
                 <text
                   key={s.ten}
+                  className="lb-son-ten"
                   x={x}
                   y={y}
                   fontSize={chon ? 11 : 9.5}
@@ -271,10 +275,11 @@ export default function LaBanView() {
                 ['Tây', 270],
               ] as const
             ).map(([ten, goc]) => {
-              const [x, y] = toaDo(goc, 96);
+              const [x, y] = toaDo(goc, 106);
               return (
                 <text
                   key={ten}
+                  className="lb-huong-chinh"
                   x={x}
                   y={y}
                   fontSize="8"
