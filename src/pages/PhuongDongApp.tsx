@@ -233,9 +233,9 @@ const CONG_CU: CongCu[] = [
       {
         muc: 'Kim la bàn và bắc thật',
         doan: [
-          'Kim từ trường chỉ bắc từ, không chỉ bắc thật. Hai hướng lệch nhau một góc gọi là độ từ thiên, thay đổi theo vị trí và theo năm. Ở Việt Nam hiện nay góc này thường dưới 1°, nên với việc chia sơn thì gần như không ảnh hưởng; nhưng nếu đo để làm mốc chính xác thì vẫn nên cộng vào.',
+          'Kim từ trường chỉ bắc từ, không chỉ bắc thật. Hai hướng lệch nhau một góc gọi là độ từ thiên, thay đổi theo vị trí và theo năm. Ở Việt Nam hiện nay góc này khoảng −0,4° ở Cà Mau đến −1,8° ở Hải Phòng, tức kim la bàn chỉ lệch về phía tây bắc thật chừng một đến hai độ; với việc chia sơn 15° thì mức đó chưa đủ đổi sơn, nhưng nếu đo để làm mốc chính xác thì vẫn phải cộng vào.',
           'Cảm biến trong điện thoại cũng cho hướng từ trường và rất dễ nhiễu: gần khung thép, loa, tủ điện, ốp lưng có nam châm, thậm chí gần một chiếc điện thoại khác. Cách đo đáng tin nhất vẫn là la bàn cơ đặt trên mặt phẳng, tránh xa vật kim loại, đo ba lần ở ba vị trí trong nhà rồi lấy trung bình.',
-          'Công cụ vẽ mặt la bàn theo bắc thật, nhận độ từ thiên nhập tay. Không có dữ liệu nào được gửi lên mạng — cảm biến đọc ngay trên máy.',
+          'Công cụ vẽ mặt la bàn theo bắc thật và tự tính độ từ thiên theo mô hình WMM2025 khi bạn cho toạ độ hoặc bấm lấy vị trí; vẫn sửa tay được nếu bạn có số đo riêng. Không có dữ liệu nào được gửi lên mạng — phép tính chạy ngay trên máy.',
         ],
       },
       {
@@ -247,7 +247,7 @@ const CONG_CU: CongCu[] = [
       },
     ],
     nguon:
-      'La kinh Tam Nguyên và cách chia 24 sơn lưu hành trong các sách phong thuỷ Việt Nam; âm dương 24 sơn theo Tam Nguyên long. Độ từ thiên nhập tay, có thể tra theo mô hình IGRF.',
+      'La kinh Tam Nguyên và cách chia 24 sơn lưu hành trong các sách phong thuỷ Việt Nam; âm dương 24 sơn theo Tam Nguyên long. Độ từ thiên tính theo mô hình WMM2025 của NCEI/NOAA (hiệu lực 2025–2030); sai số mô hình khoảng 0,5° ở vĩ độ trung bình.',
     lienQuan: ['phi-tinh', 'phong-thuy', 'lich-can-chi'],
   },
   {

@@ -32,9 +32,22 @@ const VACH = Array.from({ length: 72 }, (_, i) => i * 5).map((goc) => {
 // tránh chữ số chen vào tên sơn nằm cùng trục.
 const DO_SO = [30, 60, 120, 150, 210, 240, 300, 330];
 
+/** Toạ độ mặc định để tra độ từ thiên: Pleiku. */
+const VI_DO_MAC_DINH = 13.98;
+const KINH_DO_MAC_DINH = 108.0;
+
+/**
+ * Độ từ thiên của mô hình tại toạ độ mặc định, tính một lần lúc nạp module để
+ * ô nhập và dòng ghi chú bên dưới khớp nhau ngay từ lần mở đầu tiên.
+ */
+const TU_THIEN_MAC_DINH =
+  Math.round(
+    tinhTuThien(namThapPhan(new Date()), VI_DO_MAC_DINH, KINH_DO_MAC_DINH, 0).doTuThien * 10,
+  ) / 10;
+
 export default function LaBanView() {
   const [huong, setHuong] = useState(0);
-  const [tuThien, setTuThien] = useState(0);
+  const [tuThien, setTuThien] = useState(TU_THIEN_MAC_DINH);
   const [dangKeo, setDangKeo] = useState(false);
   const [camBien, setCamBien] = useState(false);
   const [saiSo, setSaiSo] = useState<number | null>(null);
@@ -43,10 +56,10 @@ export default function LaBanView() {
 
   // Độ từ thiên lấy theo mô hình WMM2025. Mặc định đặt toạ độ Pleiku để ai mở
   // trang cũng thấy ngay một con số hợp lý; bấm nút thì lấy vị trí thật.
-  const [viDo, setViDo] = useState(13.98);
-  const [kinhDo, setKinhDo] = useState(108.0);
+  const [viDo, setViDo] = useState(VI_DO_MAC_DINH);
+  const [kinhDo, setKinhDo] = useState(KINH_DO_MAC_DINH);
   const [dangLayViTri, setDangLayViTri] = useState(false);
-  const [nguonTuThien, setNguonTuThien] = useState<'tay' | 'wmm'>('tay');
+  const [nguonTuThien, setNguonTuThien] = useState<'tay' | 'wmm'>('wmm');
 
   const vungAnh = useRef<HTMLDivElement>(null);
   const dangKeoRef = useRef(false);
@@ -606,10 +619,11 @@ export default function LaBanView() {
 
       <GhiChu>
         <strong style={{ color: 'var(--text)' }}>Lưu ý:</strong> la bàn này vẽ theo bắc thật; cảm
-        biến điện thoại thường cho hướng từ trường nên cần cộng độ từ thiên (thường dưới 1° ở Việt
-        Nam, có thể tra theo mô hình IGRF). Máy tính để bàn không có cảm biến — hãy dùng thanh trượt
-        hoặc nhập số. Sai số đo hướng 1–2° có thể đẩy trục đo từ sơn này sang sơn khác khi đang ở
-        gần ranh giới, nên đọc cảnh báo kiêm hướng trước khi kết luận.
+        biến điện thoại thường cho hướng từ trường nên cần cộng độ từ thiên. Ô phía trên tính sẵn
+        theo mô hình WMM2025 khi bạn cho toạ độ hoặc bấm lấy vị trí; ở Việt Nam hiện nay góc này
+        khoảng −0,4° đến −1,8° tuỳ nơi. Máy tính để bàn không có cảm biến — hãy dùng thanh trượt hoặc
+        nhập số. Sai số đo hướng 1–2° có thể đẩy trục đo từ sơn này sang sơn khác khi đang ở gần ranh
+        giới, nên đọc cảnh báo kiêm hướng trước khi kết luận.
       </GhiChu>
     </div>
   );
