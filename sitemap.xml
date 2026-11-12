@@ -31,6 +31,18 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://kimkenpkl.github.io/tuvi-viet/phuong-dong/phi-tinh</loc>
+    <lastmod>2026-11-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://kimkenpkl.github.io/tuvi-viet/phuong-dong/la-ban</loc>
+    <lastmod>2026-11-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://kimkenpkl.github.io/tuvi-viet/phuong-dong/kinh-dich</loc>
     <lastmod>2026-11-12</lastmod>
     <changefreq>monthly</changefreq>
