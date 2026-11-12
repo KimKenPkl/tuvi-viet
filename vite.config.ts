@@ -10,6 +10,8 @@ const DUONG_DAN = [
   'phuong-dong/can-luong',
   'phuong-dong/sao-han',
   'phuong-dong/phong-thuy',
+  'phuong-dong/phi-tinh',
+  'phuong-dong/la-ban',
   'phuong-dong/kinh-dich',
   'phuong-dong/tuong-so',
   'phuong-dong/lich-can-chi',
